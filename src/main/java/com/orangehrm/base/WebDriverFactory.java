@@ -9,7 +9,8 @@ public class WebDriverFactory {
     public static WebDriver getDriver() {
         WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless");
+        // Running in headed mode (browser will be visible)
+        options.addArguments("--start-maximized");
         options.addArguments("--disable-gpu");
         options.addArguments("--no-sandbox");
         options.addArguments("--disable-dev-shm-usage");

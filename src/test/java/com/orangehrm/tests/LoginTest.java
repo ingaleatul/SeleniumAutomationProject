@@ -3,6 +3,7 @@ package com.orangehrm.tests;
 import com.orangehrm.base.BaseTest;
 import com.orangehrm.pages.DashboardPage;
 import com.orangehrm.pages.LoginPage;
+import com.orangehrm.utils.DataUtils;
 import io.qameta.allure.*;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -25,11 +26,7 @@ public class LoginTest extends BaseTest {
 
     @DataProvider(name = "loginData")
     public Object[][] getLoginData() {
-        return new Object[][]{
-                {"standard_user", "secret_sauce", "true"},
-                {"locked_out_user", "secret_sauce", "false"},
-                {"problem_user", "secret_sauce", "true"},
-                {"performance_glitch_user", "secret_sauce", "true"}
-        };
+        String csvFilePath = DataUtils.getTestResourcePath("testdata/login_test_data.csv");
+        return DataUtils.readCsvData(csvFilePath);
     }
 }
