@@ -18,7 +18,7 @@
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
-            <version>4.21.0</version>
+            <version>4.16.1</version>
         </dependency>
         <!-- TestNG -->
         <dependency>
@@ -59,7 +59,7 @@
         <dependency>
             <groupId>io.github.bonigarcia</groupId>
             <artifactId>webdrivermanager</artifactId>
-            <version>5.8.0</version>
+            <version>5.6.3</version>
         </dependency>
         
         <!-- SLF4J Simple Binding for ExtentReports logging -->
@@ -92,6 +92,44 @@
                         <version>${aspectj.version}</version>
                     </dependency>
                 </dependencies>
+            </plugin>
+            <!-- Allure Maven Plugin -->
+            <plugin>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-maven</artifactId>
+                <version>2.12.0</version>
+                <configuration>
+                    <reportVersion>2.27.0</reportVersion>
+                    <allureDownloadUrl>https://repo.maven.apache.org/maven2/io/qameta/allure/allure-commandline/2.27.0/allure-commandline-2.27.0.zip</allureDownloadUrl>
+                </configuration>
+            </plugin>
+            <!-- Add exec-maven-plugin for automatic report generation -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>generate-reports</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>bash</executable>
+                            <arguments>
+                                <argument>-c</argument>
+                                <argument>
+                                    echo "Generating reports..." &amp;&amp;
+                                    mvn allure:report &amp;&amp;
+                                    echo -e "\n\n=== Report Links ===" &amp;&amp;
+                                    echo "Extent Report: file://${project.basedir}/extent-reports/ExtentReport.html" &amp;&amp;
+                                    echo "Allure Report: file://${project.basedir}/target/site/allure-maven-plugin/index.html"
+                                </argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

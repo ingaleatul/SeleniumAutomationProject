@@ -1,5 +1,6 @@
 package com.orangehrm.tests;
 
+import com.aventstack.extentreports.Status;
 import com.orangehrm.base.BaseTest;
 import com.orangehrm.pages.DashboardPage;
 import com.orangehrm.pages.LoginPage;
@@ -18,10 +19,31 @@ public class LoginTest extends BaseTest {
     @Description("This test verifies the login functionality of the saucedemo application by using a data-driven approach.")
     @Severity(SeverityLevel.BLOCKER)
     public void testLogin(String username, String password, String expected) {
-        LoginPage loginPage = new LoginPage(getDriver());
-        DashboardPage dashboardPage = loginPage.login(username, password);
-        boolean actual = dashboardPage.hasCartIcon();
-        Assert.assertEquals(String.valueOf(actual), expected);
+        try {
+            // Log test data
+            test.get().info("Test Data - Username: " + username + ", Expected: " + expected);
+            
+            // Perform login
+            LoginPage loginPage = new LoginPage(getDriver());
+            test.get().log(Status.INFO, "Performing login with username: " + username);
+            
+            DashboardPage dashboardPage = loginPage.login(username, password);
+            boolean actual = dashboardPage.hasCartIcon();
+            
+            // Log the actual result
+            test.get().info("Login result - Has cart icon: " + actual);
+            
+            // Assert and log the result
+            Assert.assertEquals(String.valueOf(actual), expected);
+            test.get().pass("Test passed successfully");
+            
+        } catch (AssertionError e) {
+            test.get().fail("Test failed: " + e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            test.get().fail("Test encountered an error: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 
     @DataProvider(name = "loginData")

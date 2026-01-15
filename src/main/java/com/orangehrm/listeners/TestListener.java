@@ -1,5 +1,6 @@
 package com.orangehrm.listeners;
 
+import com.aventstack.extentreports.Status;
 import com.orangehrm.base.BaseTest;
 import io.qameta.allure.Attachment;
 import org.openqa.selenium.OutputType;
@@ -34,42 +35,63 @@ public class TestListener extends BaseTest implements ITestListener {
     @Override
     public void onFinish(ITestContext iTestContext) {
         System.out.println("I am in onFinish method " + iTestContext.getName());
-        extent.flush();
+        if (extent != null) {
+            extent.flush();
+        }
     }
 
     @Override
     public void onTestStart(ITestResult iTestResult) {
-        System.out.println("I am in onTestStart method " + getTestMethodName(iTestResult) + " start");
-        test = extent.createTest(iTestResult.getMethod().getMethodName());
+        String testName = getTestMethodName(iTestResult);
+        System.out.println("I am in onTestStart method " + testName + " start");
+        test.set(extent.createTest(testName));
+        test.get().log(Status.INFO, "Starting test: " + testName);
     }
 
     @Override
     public void onTestSuccess(ITestResult iTestResult) {
-        System.out.println("I am in onTestSuccess method " + getTestMethodName(iTestResult) + " succeed");
-        test.pass("Test passed");
+        String testName = getTestMethodName(iTestResult);
+        System.out.println("I am in onTestSuccess method " + testName + " succeed");
+        if (test.get() != null) {
+            test.get().log(Status.PASS, "Test passed");
+        }
     }
 
     @Override
     public void onTestFailure(ITestResult iTestResult) {
-        System.out.println("I am in onTestFailure method " + getTestMethodName(iTestResult) + " failed");
+        String testName = getTestMethodName(iTestResult);
+        System.out.println("I am in onTestFailure method " + testName + " failed");
+        
+        // Take screenshot for Allure report
         Object testClass = iTestResult.getInstance();
         WebDriver driver = ((BaseTest) testClass).getDriver();
-        if (driver instanceof WebDriver) {
-            System.out.println("Screenshot captured for test case:" + getTestMethodName(iTestResult));
+        if (driver != null) {
+            System.out.println("Screenshot captured for test case: " + testName);
             saveScreenshotPNG(driver);
+            saveTextLog(testName + " failed and screenshot taken!");
         }
-        saveTextLog(getTestMethodName(iTestResult) + " failed and screenshot taken!");
-        test.fail(iTestResult.getThrowable());
+        
+        // Log failure in Extent Report
+        if (test.get() != null) {
+            test.get().log(Status.FAIL, "Test Failed: " + iTestResult.getThrowable());
+        }
     }
 
     @Override
     public void onTestSkipped(ITestResult iTestResult) {
-        System.out.println("I am in onTestSkipped method " + getTestMethodName(iTestResult) + " skipped");
-        test.skip("Test skipped");
+        String testName = getTestMethodName(iTestResult);
+        System.out.println("I am in onTestSkipped method " + testName + " skipped");
+        if (test.get() != null) {
+            test.get().log(Status.SKIP, "Test Skipped: " + iTestResult.getThrowable());
+        }
     }
 
     @Override
     public void onTestFailedButWithinSuccessPercentage(ITestResult iTestResult) {
-        System.out.println("Test failed but it is in defined success ratio " + getTestMethodName(iTestResult));
+        String testName = getTestMethodName(iTestResult);
+        System.out.println("Test failed but it is in defined success ratio " + testName);
+        if (test.get() != null) {
+            test.get().log(Status.WARNING, "Test failed but within success percentage: " + iTestResult.getThrowable());
+        }
     }
 }
