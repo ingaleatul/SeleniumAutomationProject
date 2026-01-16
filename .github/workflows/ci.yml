@@ -28,47 +28,57 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-maven-
 
+    # ---------------- RUN TESTS ----------------
     - name: Run Selenium Tests
       run: mvn clean test
       continue-on-error: true
 
-    # ---------------- REPORTS ----------------
+    # ---------------- UPLOAD REPORTS ----------------
 
     - name: Upload TestNG Report
       uses: actions/upload-artifact@v4
+      if: always()
       with:
         name: TestNG-Report
         path: test-output/
 
     - name: Upload Extent Report
       uses: actions/upload-artifact@v4
+      if: always()
       with:
         name: Extent-Report
         path: reports/
 
     - name: Upload Screenshots
       uses: actions/upload-artifact@v4
+      if: always()
       with:
         name: Screenshots
         path: screenshots/
 
     - name: Upload Logs
       uses: actions/upload-artifact@v4
+      if: always()
       with:
         name: Logs
         path: logs/
 
+    # ✅ CORRECT PATH
     - name: Upload Allure Results
       uses: actions/upload-artifact@v4
+      if: always()
       with:
         name: Allure-Results
-        path: allure-results/
-        
+        path: target/allure-results/
+
+    # ---------------- GENERATE ALLURE REPORT ----------------
     - name: Generate Allure Report
       run: mvn allure:report
+      if: always()
 
     - name: Upload Allure HTML Report
       uses: actions/upload-artifact@v4
+      if: always()
       with:
         name: Allure-HTML-Report
         path: target/site/allure-maven-plugin/
